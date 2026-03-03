@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'video_screen.dart';
 
 void main() {
   runApp(const MagicApp());
@@ -116,6 +117,17 @@ class _MagicCounterScreenState extends State<MagicCounterScreen> {
                 ),
               ),
               onSubmitted: _processInput,
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SimpleVideoScreen(),
+                  ),
+                );
+              },
+              child: const Text('Відкрити відео'),
             ),
           ],
         ),
