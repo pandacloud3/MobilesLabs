@@ -4,12 +4,14 @@ class SmartTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool isPassword;
+  final TextEditingController? controller;
 
   const SmartTextField({
     super.key,
     required this.hint,
     required this.icon,
     this.isPassword = false,
+    this.controller,
   });
 
   @override
@@ -17,6 +19,7 @@ class SmartTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
           hintText: hint,

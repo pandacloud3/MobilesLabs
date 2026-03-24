@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_ui.dart';
 import 'login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -60,7 +61,10 @@ class ProfileScreen extends StatelessWidget {
                   text: 'ВИЙТИ З АКАУНТУ',
                   icon: Icons.logout,
                   color: Colors.redAccent,
-                  onPressed: () {
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('isLoggedIn');
+                    if (!context.mounted) return;
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute<void>(
