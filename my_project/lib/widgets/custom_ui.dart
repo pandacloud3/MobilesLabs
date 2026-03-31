@@ -5,6 +5,7 @@ class SmartTextField extends StatelessWidget {
   final IconData icon;
   final bool isPassword;
   final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
   const SmartTextField({
     super.key,
@@ -12,15 +13,17 @@ class SmartTextField extends StatelessWidget {
     required this.icon,
     this.isPassword = false,
     this.controller,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: isPassword,
+        validator: validator,
         decoration: InputDecoration(
           hintText: hint,
           prefixIcon: Icon(icon, color: Colors.teal),
@@ -33,6 +36,10 @@ class SmartTextField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: const BorderSide(color: Colors.teal, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 2),
           ),
         ),
       ),
