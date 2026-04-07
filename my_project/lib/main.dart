@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
+import 'package:my_project/screens/home_screen.dart';
+import 'package:my_project/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,7 @@ void main() async {
 class SmartBinApp extends StatelessWidget {
   final bool isLoggedIn;
 
-  const SmartBinApp({super.key, required this.isLoggedIn});
+  const SmartBinApp({required this.isLoggedIn, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/custom_ui.dart';
-import '../domain/user_model.dart';
-import '../data/local_user_repository.dart';
-import 'login_screen.dart';
+import 'package:my_project/widgets/custom_ui.dart';
+import 'package:my_project/domain/user_model.dart';
+import 'package:my_project/data/local_user_repository.dart';
+import 'package:my_project/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -69,6 +69,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _deleteAccount() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Видалення акаунту',
+            style: TextStyle(color: Colors.redAccent),
+          ),
+          content: const Text(
+            'Ви дійсно хочете назавжди видалити свій акаунт? Усі ваші дані будуть втрачені. Цю дію неможливо скасувати.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // Ні
+              child: const Text(
+                'Скасувати',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true), // Так
+              child: const Text(
+                'Видалити',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
     await _userRepository.deleteUser();
 
     final prefs = await SharedPreferences.getInstance();
@@ -83,6 +122,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Вихід з акаунту'),
+          content: const Text('Ви дійсно хочете вийти з поточного акаунту?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text(
+                'Скасувати',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                'Вийти',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
 
@@ -114,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -140,16 +213,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.person_outline,
                       controller: _nameController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Введіть ім\'я';
-                        if (value.contains(RegExp(r'[0-9]')))
+                        }
+                        if (value.contains(RegExp(r'[0-9]'))) {
                           return 'Ім\'я не може містити цифри';
+                        }
                         return null;
                       },
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: TextField(
                         controller: _emailController,
                         readOnly: true,
@@ -175,8 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       isPassword: true,
                       controller: _passwordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Введіть пароль';
+                        }
                         if (value.length < 6) return 'Мінімум 6 символів';
                         return null;
                       },

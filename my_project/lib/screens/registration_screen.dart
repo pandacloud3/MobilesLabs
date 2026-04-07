@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_ui.dart';
-import '../domain/user_model.dart';
-import '../data/local_user_repository.dart';
-import 'home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:my_project/widgets/custom_ui.dart';
+import 'package:my_project/domain/user_model.dart';
+import 'package:my_project/data/local_user_repository.dart';
+import 'package:my_project/screens/home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -13,11 +15,9 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
   final _userRepository = LocalUserRepository();
 
   @override
@@ -29,6 +29,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _registerUser() async {
+    final List<ConnectivityResult> connectivityResult = await Connectivity()
+        .checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Немає підключення до Інтернету!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       final newUser = UserModel(
         name: _nameController.text.trim(),
@@ -39,6 +52,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       final success = await _userRepository.registerUser(newUser);
 
       if (success && mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Реєстрація успішна!'),
@@ -81,47 +97,47 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       color: Colors.teal,
                     ),
                     const SizedBox(height: 32),
-
                     SmartTextField(
                       hint: 'Ім\'я користувача',
                       icon: Icons.person_outline,
                       controller: _nameController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Будь ласка, введіть ім\'я';
-                        if (value.contains(RegExp(r'[0-9]')))
+                        }
+                        if (value.contains(RegExp(r'[0-9]'))) {
                           return 'Ім\'я не може містити цифри';
+                        }
                         return null;
                       },
                     ),
-
                     SmartTextField(
                       hint: 'Електронна пошта',
                       icon: Icons.email_outlined,
                       controller: _emailController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Будь ласка, введіть пошту';
+                        }
                         if (!value.contains('@') || !value.contains('.')) {
                           return 'Введіть коректну електронну пошту';
                         }
                         return null;
                       },
                     ),
-
                     SmartTextField(
                       hint: 'Пароль (мінімум 6 символів)',
                       icon: Icons.lock_outline,
                       isPassword: true,
                       controller: _passwordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Будь ласка, введіть пароль';
+                        }
                         if (value.length < 6) return 'Пароль занадто короткий';
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 32),
                     SmartButton(
                       text: 'ЗАРЕЄСТРУВАТИСЯ',

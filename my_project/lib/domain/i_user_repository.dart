@@ -1,4 +1,4 @@
-import 'user_model.dart';
+import 'package:my_project/domain/user_model.dart';
 
 abstract class IUserRepository {
   Future<bool> registerUser(UserModel user);
