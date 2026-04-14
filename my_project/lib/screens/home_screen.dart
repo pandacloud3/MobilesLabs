@@ -20,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _trashLevel = 'Очікування...';
   String _lidStatus = 'Очікування...';
 
+  bool _isLidLocked = false;
+
   @override
   void initState() {
     super.initState();
@@ -83,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
       await _mqttClient.connect();
     } catch (e) {
       _mqttClient.disconnect();
-
       _mqttClient = MqttServerClient.withPort(
         'broker.hivemq.com',
         '${clientId}_sec',
@@ -121,6 +122,31 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       });
     }
+  }
+
+  void _toggleLidLock(bool value) {
+    setState(() {
+      _isLidLocked = value;
+    });
+
+    if (!_isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Немає підключення до брокера!')),
+      );
+      return;
+    }
+
+    final String command = _isLidLocked ? "lock_on" : "lock_off";
+
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(command);
+    _mqttClient.publishMessage(
+      'smart_bin/command',
+      MqttQos.atMostOnce,
+      builder.payload!,
+    );
+
+    print('📤 Відправлено команду: $command');
   }
 
   Color _getTrashColor() {
@@ -201,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               Icon(
                 _lidStatus == 'Opened' ? Icons.delete_outline : Icons.delete,
                 size: 120,
@@ -220,14 +246,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: _getTrashColor(),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               Card(
-                elevation: 4,
+                elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -245,6 +271,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: SwitchListTile(
+                  title: const Text(
+                    'Блокування кришки',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    _isLidLocked ? 'Сенсор заблоковано' : 'Сенсор активний',
+                    style: TextStyle(
+                      color: _isLidLocked ? Colors.red : Colors.green,
+                    ),
+                  ),
+                  value: _isLidLocked,
+                  secondary: Icon(
+                    _isLidLocked ? Icons.block : Icons.check_circle_outline,
+                    color: _isLidLocked ? Colors.red : Colors.green,
+                    size: 30,
+                  ),
+                  onChanged: (bool value) {
+                    _toggleLidLock(value);
+                  },
                 ),
               ),
             ],

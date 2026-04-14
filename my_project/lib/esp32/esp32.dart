@@ -7,6 +7,7 @@
 // const char* mqtt_server = "broker.hivemq.com";
 // const char* topic_level = "smart_bin/trash_level";
 // const char* topic_lid = "smart_bin/lid_status";
+// const char* topic_command = "smart_bin/command";
 
 // const int ledGreen = 16;
 // const int ledYellow = 17;
@@ -24,6 +25,23 @@
 // unsigned long lastReconnectAttempt = 0;
 // unsigned long lidOpenTime = 0;
 // bool isLidOpen = false;
+// bool isLidLocked = false;
+
+// void callback(char* topic, byte* payload, unsigned int length) {
+//   String message = "";
+//   for (int i = 0; i < length; i++) {
+//     message += (char)payload[i];
+//   }
+  
+//   if (String(topic) == topic_command) {
+//     if (message == "lock_on") {
+//       isLidLocked = true;
+//     } 
+//     else if (message == "lock_off") {
+//       isLidLocked = false;
+//     }
+//   }
+// }
 
 // void setup() {
 //   Serial.begin(115200);
@@ -31,7 +49,6 @@
 //   pinMode(ledGreen, OUTPUT);
 //   pinMode(ledYellow, OUTPUT);
 //   pinMode(ledRed, OUTPUT);
-
 //   pinMode(pinFC51, INPUT);
 //   pinMode(pinTrig, OUTPUT);
 //   pinMode(pinEcho, INPUT);
@@ -41,6 +58,7 @@
 
 //   setup_wifi();
 //   client.setServer(mqtt_server, 1883);
+//   client.setCallback(callback);
 // }
 
 // void setup_wifi() {
@@ -56,6 +74,7 @@
 // boolean reconnect() {
 //   String clientId = "SmartBinESP32-" + String(random(0xffff), HEX);
 //   if (client.connect(clientId.c_str())) {
+//     client.subscribe(topic_command);
 //     return true;
 //   } else {
 //     return false;
@@ -76,7 +95,7 @@
 //     client.loop();
 //   }
 
-//   if (digitalRead(pinFC51) == LOW) {
+//   if (digitalRead(pinFC51) == LOW && !isLidLocked) {
 //     lidOpenTime = currentMillis; 
 //     if (!isLidOpen) {
 //       myServo.write(90);
