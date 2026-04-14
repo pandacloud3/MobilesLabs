@@ -5,8 +5,7 @@ class UrbanTextField extends StatelessWidget {
   final bool isPassword;
 
   const UrbanTextField({
-    super.key,
-    required this.hint,
+    required this.hint, super.key,
     this.isPassword = false,
   });
 
@@ -26,7 +25,7 @@ class UrbanTextField extends StatelessWidget {
           ),
           focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: Colors.black, width: 2),
+            borderSide: BorderSide(width: 2),
           ),
         ),
       ),

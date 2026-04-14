@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../domain/i_user_repository.dart';
-import '../domain/user_model.dart';
+import 'package:my_project/domain/i_user_repository.dart';
+import 'package:my_project/domain/user_model.dart';
 
 class LocalUserRepository implements IUserRepository {
   static const String _userKey = 'saved_user';
@@ -10,7 +10,6 @@ class LocalUserRepository implements IUserRepository {
   Future<bool> registerUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     final userJson = jsonEncode(user.toJson());
-    // Зберігаємо в пам'ять
     return await prefs.setString(_userKey, userJson);
   }
 

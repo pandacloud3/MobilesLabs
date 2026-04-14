@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/custom_ui.dart';
-import '../data/local_user_repository.dart';
-import 'home_screen.dart';
-import 'registration_screen.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:my_project/widgets/custom_ui.dart';
+import 'package:my_project/data/local_user_repository.dart';
+import 'package:my_project/screens/home_screen.dart';
+import 'package:my_project/screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,10 +15,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   final _userRepository = LocalUserRepository();
 
   @override
@@ -28,6 +27,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _checkLogin() async {
+    final List<ConnectivityResult> connectivityResult = await Connectivity()
+        .checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Немає підключення до Інтернету!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
@@ -96,14 +108,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                     const SizedBox(height: 40),
-
                     SmartTextField(
                       hint: 'Електронна пошта',
                       icon: Icons.email_outlined,
                       controller: _emailController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Будь ласка, введіть пошту';
+                        }
                         return null;
                       },
                     ),
@@ -113,12 +125,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       isPassword: true,
                       controller: _passwordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Будь ласка, введіть пароль';
+                        }
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 24),
                     SmartButton(
                       text: 'УВІЙТИ',

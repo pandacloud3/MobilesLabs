@@ -4,7 +4,7 @@ class UrbanButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const UrbanButton({super.key, required this.text, required this.onPressed});
+  const UrbanButton({required this.text, required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class UrbanButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: const RoundedRectangleBorder(),
         ),
         onPressed: onPressed,
         child: Text(

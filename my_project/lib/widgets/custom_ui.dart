@@ -8,9 +8,7 @@ class SmartTextField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const SmartTextField({
-    super.key,
-    required this.hint,
-    required this.icon,
+    required this.hint, required this.icon, super.key,
     this.isPassword = false,
     this.controller,
     this.validator,
@@ -55,10 +53,7 @@ class SmartButton extends StatelessWidget {
   final double fontSize;
 
   const SmartButton({
-    super.key,
-    required this.text,
-    required this.icon,
-    required this.onPressed,
+    required this.text, required this.icon, required this.onPressed, super.key,
     this.color,
     this.fontSize = 18,
   });
