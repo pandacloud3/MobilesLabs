@@ -50,7 +50,9 @@ class BinCubit extends Cubit<BinState> {
       ..logging(on: false);
 
     _mqttClient.onDisconnected = () {
-      if (!isClosed) emit(state.copyWith(isConnected: false));
+      if (!isClosed) {
+        emit(state.copyWith(isConnected: false));
+      }
     };
 
     _mqttClient.connectionMessage = MqttConnectMessage()
@@ -65,7 +67,9 @@ class BinCubit extends Cubit<BinState> {
     }
 
     if (_mqttClient.connectionStatus!.state == MqttConnectionState.connected) {
-      if (!isClosed) emit(state.copyWith(isConnected: true));
+      if (!isClosed) {
+        emit(state.copyWith(isConnected: true));
+      }
 
       _mqttClient.subscribe('smart_bin/trash_level', MqttQos.atMostOnce);
       _mqttClient.subscribe('smart_bin/lid_status', MqttQos.atMostOnce);
@@ -75,16 +79,22 @@ class BinCubit extends Cubit<BinState> {
           (c![0].payload as MqttPublishMessage).payload.message,
         );
         if (c[0].topic == 'smart_bin/trash_level') {
-          if (!isClosed) emit(state.copyWith(trashLevel: payload));
+          if (!isClosed) {
+            emit(state.copyWith(trashLevel: payload));
+          }
         } else if (c[0].topic == 'smart_bin/lid_status') {
-          if (!isClosed) emit(state.copyWith(lidStatus: payload));
+          if (!isClosed) {
+            emit(state.copyWith(lidStatus: payload));
+          }
         }
       });
     }
   }
 
   void toggleLidLock(bool value) {
-    if (!state.isConnected) return;
+    if (!state.isConnected) {
+      return;
+    }
     emit(state.copyWith(isLidLocked: value));
 
     final builder = MqttClientPayloadBuilder()

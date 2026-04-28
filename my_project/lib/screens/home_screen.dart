@@ -45,7 +45,6 @@ class HomeScreen extends StatelessWidget {
       body: BlocBuilder<BinCubit, BinState>(
         builder: (context, state) {
           final tColor = _getTrashColor(state.trashLevel);
-
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),

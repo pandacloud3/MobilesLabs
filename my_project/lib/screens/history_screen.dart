@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_project/cubits/history_cubit.dart';
+import 'package:my_project/cubits/history_bloc.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -8,8 +8,36 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Історія подій')),
-      body: BlocBuilder<HistoryCubit, HistoryState>(
+      appBar: AppBar(
+        title: const Text('Історія подій'),
+        actions: [
+          BlocBuilder<HistoryBloc, HistoryState>(
+            builder: (context, state) {
+              return Row(
+                children: [
+                  Text(
+                    state.useFirestore ? 'Firebase' : 'MockAPI',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Switch(
+                    value: state.useFirestore,
+                    activeColor: Colors.orange,
+                    onChanged: (bool value) {
+                      context.read<HistoryBloc>().add(
+                        ToggleDataSourceEvent(value),
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+      body: BlocBuilder<HistoryBloc, HistoryState>(
         builder: (context, state) {
           if (state is HistoryLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -24,6 +52,7 @@ class HistoryScreen extends StatelessWidget {
             if (state.events.isEmpty) {
               return const Center(child: Text('Історія порожня'));
             }
+
             return ListView.builder(
               itemCount: state.events.length,
               itemBuilder: (context, index) {
@@ -34,9 +63,16 @@ class HistoryScreen extends StatelessWidget {
                     vertical: 8,
                   ),
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.teal,
-                      child: Icon(Icons.history, color: Colors.white),
+                    leading: CircleAvatar(
+                      backgroundColor: state.useFirestore
+                          ? Colors.orange
+                          : Colors.teal,
+                      child: Icon(
+                        state.useFirestore
+                            ? Icons.local_fire_department
+                            : Icons.history,
+                        color: Colors.white,
+                      ),
                     ),
                     title: Text(
                       event.eventName,

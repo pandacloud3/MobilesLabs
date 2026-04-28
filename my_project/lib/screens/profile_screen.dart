@@ -180,10 +180,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: Icons.person_outline,
                           controller: _nameController,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Введіть ім\'я';
-                            if (value.contains(RegExp(r'[0-9]')))
+                            }
+                            if (value.contains(RegExp(r'[0-9]'))) {
                               return 'Ім\'я не може містити цифри';
+                            }
                             return null;
                           },
                         ),
@@ -213,9 +215,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           isPassword: true,
                           controller: _passwordController,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Введіть пароль';
-                            if (value.length < 6) return 'Мінімум 6 символів';
+                            }
+                            if (value.length < 6) {
+                              return 'Мінімум 6 символів';
+                            }
                             return null;
                           },
                         ),
