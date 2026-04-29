@@ -3,21 +3,38 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_project/cubits/bin_cubit.dart';
 import 'package:my_project/screens/profile_screen.dart';
 import 'package:my_project/screens/history_screen.dart';
+import 'package:my_flashlight_plugin/my_flashlight_plugin.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Color _getTrashColor(String level) {
-    if (level == 'Empty') {
-      return Colors.green;
-    }
-    if (level == 'Medium') {
-      return Colors.orange;
-    }
-    if (level == 'Full') {
-      return Colors.red;
-    }
+    if (level == 'Empty') return Colors.green;
+    if (level == 'Medium') return Colors.orange;
+    if (level == 'Full') return Colors.red;
     return Colors.grey;
+  }
+
+  Future<void> _toggleSecretFlashlight(BuildContext context) async {
+    try {
+      await MyFlashlightPlugin.toggleLight();
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Секретний функціонал'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Зрозумів'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -73,12 +90,15 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Icon(
-                    state.lidStatus == 'Opened'
-                        ? Icons.delete_outline
-                        : Icons.delete,
-                    size: 120,
-                    color: tColor,
+                  GestureDetector(
+                    onDoubleTap: () => _toggleSecretFlashlight(context),
+                    child: Icon(
+                      state.lidStatus == 'Opened'
+                          ? Icons.delete_outline
+                          : Icons.delete,
+                      size: 120,
+                      color: tColor,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Text(
