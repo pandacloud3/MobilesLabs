@@ -312,6 +312,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.11.10"
+  my_flashlight_plugin:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: dc7a9e28efdfd1f0799273053cfab3a5064c1b3a
+      url: "https://github.com/pandacloud3/my_flashlight_plugin.git"
+    source: git
+    version: "0.0.1"
   nested:
     dependency: transitive
     description:
