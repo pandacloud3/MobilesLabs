@@ -1,61 +1,78 @@
 import 'package:flutter/material.dart';
-import '../domain/bin_event_model.dart';
-import '../data/api_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/cubits/history_bloc.dart';
 
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
-
-  @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
-  final ApiService _apiService = ApiService();
-  late Future<List<BinEvent>> _historyFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _historyFuture = _apiService.getHistory();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Історія подій')),
-      body: FutureBuilder<List<BinEvent>>(
-        future: _historyFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      appBar: AppBar(
+        title: const Text('Історія подій'),
+        actions: [
+          BlocBuilder<HistoryBloc, HistoryState>(
+            builder: (context, state) {
+              return Row(
+                children: [
+                  Text(
+                    state.useFirestore ? 'Firebase' : 'MockAPI',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Switch(
+                    value: state.useFirestore,
+                    activeColor: Colors.orange,
+                    onChanged: (bool value) {
+                      context.read<HistoryBloc>().add(
+                        ToggleDataSourceEvent(value),
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+      body: BlocBuilder<HistoryBloc, HistoryState>(
+        builder: (context, state) {
+          if (state is HistoryLoading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          } else if (state is HistoryError) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  'Помилка: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.red),
-                ),
+              child: Text(
+                'Помилка: ${state.message}',
+                style: const TextStyle(color: Colors.red),
               ),
             );
-          } else if (snapshot.hasData) {
-            final events = snapshot.data!;
-            if (events.isEmpty) {
+          } else if (state is HistoryLoaded) {
+            if (state.events.isEmpty) {
               return const Center(child: Text('Історія порожня'));
             }
+
             return ListView.builder(
-              itemCount: events.length,
+              itemCount: state.events.length,
               itemBuilder: (context, index) {
-                final event = events[index];
+                final event = state.events[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 8,
                   ),
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.teal,
-                      child: Icon(Icons.history, color: Colors.white),
+                    leading: CircleAvatar(
+                      backgroundColor: state.useFirestore
+                          ? Colors.orange
+                          : Colors.teal,
+                      child: Icon(
+                        state.useFirestore
+                            ? Icons.local_fire_department
+                            : Icons.history,
+                        color: Colors.white,
+                      ),
                     ),
                     title: Text(
                       event.eventName,
